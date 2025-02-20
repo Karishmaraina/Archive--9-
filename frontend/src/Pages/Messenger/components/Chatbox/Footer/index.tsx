@@ -1,12 +1,11 @@
 import React, { useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
-import { BsEmojiSmile } from "react-icons/bs";
+import { BsEmojiSmile, BsSend } from "react-icons/bs";
 import { GrAttachment } from "react-icons/gr";
 
 const Footer = ({ sendMessage }) => {
   const [text, setText] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
   const [emojisOpened, setEmojisOpened] = useState(false);
 
@@ -22,33 +21,36 @@ const Footer = ({ sendMessage }) => {
   };
 
   const handleSend = () => {
-    sendMessage({
-      text: text,
-      fils: [],
-    });
-    setText("");
+    if (text.trim() || fileName) {
+      sendMessage({
+        text: text,
+        files: fileName ? [fileName] : [],
+      });
+      setText("");
+      setFileName("");
+    }
   };
 
   return (
-    <div className="flex items-center gap-3 bg-white px-2 py-2">
-      <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 bg-gray-100 px-2 py-2">
+      <div className="flex items-center gap-4">
         <div className="relative">
           <BsEmojiSmile
-            className="cursor-pointer"
-            size={"22px"}
+            className="cursor-pointer text-gray-500 hover:text-gray-700"
+            size={22}
             onClick={() => setEmojisOpened((prev) => !prev)}
           />
           {emojisOpened && (
             <div className="absolute bottom-[48px]">
               <EmojiPicker
-                onEmojiClick={(emoji) => setText((prev) => prev + emoji?.emoji)}
+                onEmojiClick={(emoji) => setText((prev) => prev + emoji.emoji)}
               />
             </div>
           )}
         </div>
         <GrAttachment
-          className="cursor-pointer"
-          size={"22px"}
+          className="cursor-pointer text-gray-500 hover:text-gray-700"
+          size={22}
           onClick={handleButtonClick}
         />
         <input
@@ -60,17 +62,19 @@ const Footer = ({ sendMessage }) => {
       </div>
       <input
         type="text"
-        placeholder="Enter your message here..."
-        className="flex-grow"
-        style={{ fontSize: "18px", padding: "8px 8px", outline: "none" }}
-        onChange={(e) => setText(e.target.value)}
+        placeholder="Type a message"
+        className="flex-grow px-2 py-2 text-lg outline-none rounded-s-xl"
         value={text}
+        onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") handleSend();
         }}
       />
-      <button className="title-bar-btn w-[80px]" onClick={handleSend}>
-        Send
+      <button
+        className="bg-gray-500 text-white rounded-full p-2 hover:bg-gray-600 transition"
+        onClick={handleSend}
+      >
+        <BsSend size={20} />
       </button>
     </div>
   );

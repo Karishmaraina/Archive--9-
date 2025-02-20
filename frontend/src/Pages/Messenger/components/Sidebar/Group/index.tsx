@@ -5,8 +5,8 @@ import { getNameInitials } from "../../../../../utils";
 
 const Group = ({ goBack, handleGroupCreated }) => {
   const [groupName, setGroupName] = useState("");
-  const [members, setMembers] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [members, setMembers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleCreateGroup = async () => {
@@ -14,30 +14,33 @@ const Group = ({ goBack, handleGroupCreated }) => {
       alert("Group name and members are both required");
       return;
     }
+
     try {
       const response = await createGroup(members, groupName);
       alert(`Group created: ${response.group.name}`);
       handleGroupCreated(response.group);
       goBack();
     } catch (error) {
-      alert("Error creating group");
+      console.error("Error creating group:", error);
+      alert("Error creating group. Please try again.");
     }
   };
 
   const User = ({ id, name }) => {
+    const isSelected = members.includes(id);
+
     return (
       <div
-        className="flex gap-2 items-center border-[1px] cursor-pointer p-2 rounded-md mb-2 hover:bg-slate-50"
-        style={{ borderColor: members.includes(id) ? "green" : "auto" }}
-        onClick={() => {
-          const temp = [...members];
-          if (temp.includes(id)) {
-            const index = temp.indexOf(id);
-            temp.splice(index, 1);
-          } else temp.push(id);
-
-          setMembers(temp);
-        }}
+        className={`flex gap-2 items-center border cursor-pointer p-2 rounded-sm mb-2 hover:bg-slate-50 ${
+          isSelected ? "border-green-500" : "border-gray-300"
+        }`}
+        onClick={() =>
+          setMembers((prev) =>
+            prev.includes(id)
+              ? prev.filter((memberId) => memberId !== id)
+              : [...prev, id]
+          )
+        }
       >
         <div className="flex justify-center items-center bg-[#eeeeee] w-[40px] h-[40px] rounded-full relative">
           {getNameInitials(name)}
@@ -53,11 +56,10 @@ const Group = ({ goBack, handleGroupCreated }) => {
     const fetchUsers = async () => {
       try {
         const data = await getAllUsers();
-        setUsers(
-          data.filter((user) => user._id !== localStorage.getItem("user"))
-        );
+        const currentUserId = localStorage.getItem("user") || "";
+        setUsers(data.filter((user) => user._id !== currentUserId));
       } catch (error) {
-        console.error("Failed to fetch users");
+        console.error("Failed to fetch users:", error);
       } finally {
         setLoading(false);
       }
@@ -71,36 +73,31 @@ const Group = ({ goBack, handleGroupCreated }) => {
       <h1 className="text-xl text-black font-semibold mt-2 mb-4">
         Add a new group
       </h1>
+
       <input
+        type="text"
         placeholder="Enter group name"
-        style={{
-          fontSize: "16px",
-          padding: "8px 8px",
-          border: "1px solid gainsboro",
-          borderRadius: "6px",
-          outline: "none",
-          width: "100%",
-          marginBottom: "12px",
-        }}
+        className="w-full px-3 py-2 text-lg border border-gray-300 rounded-md outline-none mb-4"
         value={groupName}
         onChange={(e) => setGroupName(e.target.value)}
       />
+
       <div>
         <h1 className="mb-2">Choose group members</h1>
-        {loading && <p className="text-center my-6">Loading users...</p>}
-        {!loading && (
-          <>
-            {users.length === 0 ? (
-              <p className="text-center my-6">No other users found...</p>
-            ) : (
-              users.map((user) => <User id={user._id} name={user.name} />)
-            )}
-          </>
+        {loading ? (
+          <p className="text-center my-6">Loading users...</p>
+        ) : users.length === 0 ? (
+          <p className="text-center my-6">No other users found...</p>
+        ) : (
+          users.map((user) => <User key={user._id} id={user._id} name={user.name} />)
         )}
       </div>
 
-      <button className="title-bar-btn w-full" onClick={handleCreateGroup}>
-        Create group
+      <button
+        className="w-full bg-gray-500 text-white py-2 mt-4 rounded-md hover:bg-gray-400 transition duration-300"
+        onClick={handleCreateGroup}
+      >
+        Create Group
       </button>
     </div>
   );

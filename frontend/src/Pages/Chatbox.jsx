@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { FaPaperclip, FaDownload, FaCheck, FaRegSmile } from "react-icons/fa";
 
-// const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5000");
 
 const Button = ({ children, onClick, className, disabled }) => (
   <button

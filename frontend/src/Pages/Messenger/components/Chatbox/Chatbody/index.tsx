@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from "react";
 import Message from "./Message";
 
 const Chatbody = ({ messages }) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef(null);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -15,21 +16,24 @@ const Chatbody = ({ messages }) => {
   console.log({ messages });
 
   const transformMessagesForNonGroup = (arr) => {
-    return [...arr].reverse().map((msg) => {
-      if (msg.clientSide) return msg;
-      return {
-        sender:
-          msg?.sender?._id === localStorage.getItem("user") ? "me" : "other",
-        text: msg.text,
-        time: msg.createdAt,
-      };
-    });
+    return [...arr]
+      .reverse()
+      .map((msg) => {
+        if (msg.clientSide) return msg;
+        return {
+          sender:
+            msg?.sender?._id === localStorage.getItem("user") ? "me" : "other",
+          text: msg.text,
+          time: msg.createdAt,
+        };
+      });
   };
 
   return (
-    <div className="flex-grow bg-[#efeae2] p-4 overflow-y-auto">
-      {transformMessagesForNonGroup(messages).map((msg) => (
+    <div className="flex-grow overflow-y-auto bg-[#efeae2] p-4">
+      {transformMessagesForNonGroup(messages).map((msg, index) => (
         <Message
+          key={index}
           isOther={msg.sender === "other"}
           text={msg.text}
           image={null}

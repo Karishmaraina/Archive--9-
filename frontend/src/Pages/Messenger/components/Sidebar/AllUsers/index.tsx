@@ -3,18 +3,16 @@ import { getAllUsers } from "../../../../../api/user";
 import { getNameInitials } from "../../../../../utils";
 
 const AllUsers = ({ selectConvo }) => {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const data = await getAllUsers();
-        setUsers(
-          data.filter((user) => user._id !== localStorage.getItem("user"))
-        );
+        setUsers(data.filter((user) => user._id !== localStorage.getItem("user")));
       } catch (error) {
-        console.error("Failed to fetch users");
+        console.error("Failed to fetch users", error);
       } finally {
         setLoading(false);
       }
@@ -23,46 +21,37 @@ const AllUsers = ({ selectConvo }) => {
     fetchUsers();
   }, []);
 
-  const User = ({ id, name }) => {
-    return (
-      <div
-        className="flex gap-2 items-center border-[1px] cursor-pointer p-2 rounded-md mb-2 hover:bg-slate-50"
-        onClick={() =>
-          selectConvo({
-            isGroup: false,
-            id,
-            title: name,
-            members: [],
-          })
-        }
-      >
-        <div className="flex justify-center items-center bg-[#eeeeee] w-[40px] h-[40px] rounded-full relative">
-          {getNameInitials(name)}
-        </div>
-        <div>
-          <h1 className="text-lg">{name}</h1>
-        </div>
+  const User = ({ id, name }) => (
+    <div
+      className="mb-2 flex cursor-pointer items-center gap-2 rounded-md border p-2 hover:bg-slate-50"
+      onClick={() =>
+        selectConvo({
+          isGroup: false,
+          id,
+          title: name,
+          members: [],
+        })
+      }
+    >
+      <div className="relative flex h-[40px] w-[40px] items-center justify-center rounded-full bg-[#eeeeee]">
+        {getNameInitials(name)}
       </div>
-    );
-  };
+      <h1 className="text-lg">{name}</h1>
+    </div>
+  );
 
   return (
     <div className="px-2">
-      <h1 className="text-xl text-black font-semibold mt-2 mb-4">
+      <h1 className="mt-2 mb-4 text-xl font-semibold text-black">
         Start a new chat
       </h1>
-      <div>
-        {loading && <p className="text-center my-6">Loading users...</p>}
-        {!loading && (
-          <>
-            {users.length === 0 ? (
-              <p className="text-center my-6">No other users found...</p>
-            ) : (
-              users.map((user) => <User id={user._id} name={user.name} />)
-            )}
-          </>
-        )}
-      </div>
+      {loading ? (
+        <p className="my-6 text-center">Loading users...</p>
+      ) : users.length === 0 ? (
+        <p className="my-6 text-center">No other users found...</p>
+      ) : (
+        users.map((user) => <User key={user._id} id={user._id} name={user.name} />)
+      )}
     </div>
   );
 };

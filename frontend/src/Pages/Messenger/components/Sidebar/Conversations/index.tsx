@@ -5,15 +5,8 @@ const Conversations = ({ conversations, selectConvo }) => {
   const Conversation = ({ title, id, lastMessage, isGroup, members }) => {
     return (
       <div
-        className="flex gap-2 items-center border-[1px] cursor-pointer p-2 rounded-md mb-2 hover:bg-slate-50"
-        onClick={() =>
-          selectConvo({
-            isGroup: isGroup,
-            id,
-            title: title,
-            members: members,
-          })
-        }
+        className="flex gap-2 items-center border-[1px] cursor-pointer p-2 rounded-sm mb-2 hover:bg-slate-50"
+        onClick={() => selectConvo({ isGroup, id, title, members })}
       >
         <div className="flex justify-center items-center bg-[#eeeeee] w-[40px] h-[40px] rounded-full relative">
           {getNameInitials(title)}
@@ -29,22 +22,15 @@ const Conversations = ({ conversations, selectConvo }) => {
 
   return (
     <div className="px-2">
-      <h1 className="text-xl text-black font-semibold mt-2 mb-4">
-        Conversations
-      </h1>
+      <h1 className="text-xl text-black font-semibold mt-2 mb-4">Chats</h1>
       <div>
-        {conversations.length === 0 && (
+        {conversations.length === 0 ? (
           <p className="text-center my-8">No chats found</p>
+        ) : (
+          conversations.map((convo) => (
+            <Conversation key={convo.id} {...convo} />
+          ))
         )}
-        {conversations.map((convo) => (
-          <Conversation
-            title={convo.title}
-            id={convo.id}
-            lastMessage={convo.lastMessage}
-            members={convo.members}
-            isGroup={convo.isGroup}
-          />
-        ))}
       </div>
     </div>
   );
